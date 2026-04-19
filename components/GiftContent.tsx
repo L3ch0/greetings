@@ -18,7 +18,7 @@ export default function GiftContent({ gift, onClose }: GiftContentProps) {
     >
       <motion.div
         className="
-          w-full max-h-[85vh] overflow-y-auto
+          relative w-full max-h-[85vh] overflow-y-auto
           bg-bg rounded-t-3xl rounded-b-none p-6 pb-safe-bottom
           md:max-w-lg md:rounded-3xl md:max-h-[80vh] md:m-4
         "
