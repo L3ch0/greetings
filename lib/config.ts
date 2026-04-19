@@ -35,7 +35,7 @@ export const config: Config = {
     },
     {
       type: 'photo',
-      title: 'Наш найкращий момент',
+      title: 'Наші найкращі моменти',
       photoFolder: 'images',
       caption: 'Цa дні залишиться в моєму серці назавжди',
     },

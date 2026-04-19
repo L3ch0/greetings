@@ -150,7 +150,7 @@ function PhotoGallery({ image, images, caption }: { image?: string; images?: str
           key={index}
           src={all[index]}
           alt={`фото ${index + 1}`}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
         {all.length > 1 && (
           <>
