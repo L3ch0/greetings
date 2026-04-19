@@ -1,0 +1,11 @@
+export const SCENE = {
+  PRIMARY: '#FFB5C5',
+  PRIMARY_DEEP: '#E89AAE',
+  ACCENT: '#FFD700',
+  WAX: '#FFF8F0',
+  WAX_ALT: '#FFDCE4',
+  WICK: '#2B1A10',
+  FLAME_OUTER: '#FFA24B',
+  FLAME_INNER: '#FFF2A8',
+  POINT_LIGHT: '#FFB86B',
+} as const;
