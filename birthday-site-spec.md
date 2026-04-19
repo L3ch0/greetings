@@ -4,22 +4,22 @@
 
 ```yaml
 # Інформація про адресата
-recipient_name: "<<ІМ'Я>>"                    # напр. "Anna"
-recipient_nickname: "<<ПЕСТЛИВЕ_ІМ'Я>>"       # напр. "Сонечко", можна лишити порожнім
-age: <<ВІК>>                                  # число, напр. 25
-birthday_date: "<<ДД.ММ.РРРР>>"               # опціонально
+recipient_name: "Крістіна"                    # напр. "Anna"
+recipient_nickname: "Сонечко"       # напр. "Сонечко", можна лишити порожнім
+age: 25                                  # число, напр. 25
+birthday_date: "<<20.04.2001>>"               # опціонально
 
 # Естетика
-aesthetic: "<<ВАЙБ>>"                         # один із: minimalism | pastel-romance | dark-romance | retro | cosmic | custom
-primary_color: "#<<HEX>>"                     # напр. #FFB5C5 (рожевий пастель)
-accent_color: "#<<HEX>>"                      # напр. #FFD700 (золотий для полум'я/акцентів)
-background_color: "#<<HEX>>"                  # напр. #FFF5F7
-text_color: "#<<HEX>>"                        # напр. #2D1B2E
-font_heading: "<<GOOGLE_FONT>>"               # напр. "Playfair Display"
-font_body: "<<GOOGLE_FONT>>"                  # напр. "Inter"
+aesthetic: "pastel-romance"                         # один із: minimalism | pastel-romance | dark-romance | retro | cosmic | custom
+primary_color: "#FFB5C5"                     # напр. #FFB5C5 (рожевий пастель)
+accent_color: "#FFD700"                      # напр. #FFD700 (золотий для полум'я/акцентів)
+background_color: "#FFF5F7"                  # напр. #FFF5F7
+text_color: "#2D1B2E"                        # напр. #2D1B2E
+font_heading: "Playfair Display"               # напр. "Playfair Display"
+font_body: "Inter"                  # напр. "Inter"
 
 # Сцена 1: торт
-candles_count: <<ЧИСЛО>>                      # скільки свічок на торті (зазвичай = вік, але можна менше, напр. 5-10)
+candles_count: 7                      # скільки свічок на торті (зазвичай = вік, але можна менше, напр. 5-10)
 cake_tiers: 2                                 # кількість ярусів торта (2 або 3)
 
 # Сцена 2: подарунки
@@ -61,279 +61,699 @@ deploy_subdomain: "<<SUBDOMAIN>>"             # напр. "for-anna" → for-ann
 
 ---
 
-## 1. Мета проєкту
+## 1. Мета
 
-Односторінковий сайт-привітання з двома сценами:
-1. **Сцена 1** — 3D-торт зі свічками; користувач по черзі клікає на полум'я → свічки гаснуть → після останньої запускається конфеті й відбувається плавний перехід.
-2. **Сцена 2** — сітка подарункових коробок; клік по коробці відкриває її з анімацією й показує вміст (спогад/фото/голос/обіцянка). Після відкриття всіх коробок з'являється фінальне повідомлення.
-
-Без мікрофону, без бекенду, без бази даних. Усе статичне.
+Односторінковий SPA з трьома сценами:
+1. **Cake** — 3D-торт з свічками. Тап по полум'ю гасить свічку. Після останньої — конфеті й перехід.
+2. **Gifts** — сітка подарункових коробок. Тап відкриває коробку з вмістом у bottom-sheet модалці.
+3. **Final** — фінальне привітання після відкриття всіх коробок.
+   Без бекенду, без БД, без автентифікації. Усе статичне. Primary target: iPhone 14 Pro Max (430×932, DPR 3, ProMotion). Min supported: iPhone SE (375×667).
 
 ---
 
-## 2. Стек технологій (точні версії)
+## 2. Стек (точні версії)
 
 | Призначення | Пакет | Версія |
 |---|---|---|
-| Фреймворк | `next` | ^14.2.0 (App Router) |
+| Фреймворк | `next` | ^14.2.0 |
 | Мова | `typescript` | ^5.4.0 |
 | Стилі | `tailwindcss` | ^3.4.0 |
-| 3D-рендер | `three` | ^0.163.0 |
-| React-обгортка для Three | `@react-three/fiber` | ^8.16.0 |
-| Хелпери (OrbitControls, Text, etc.) | `@react-three/drei` | ^9.105.0 |
-| Анімації UI | `framer-motion` | ^11.0.0 |
+| 3D | `three` | ^0.163.0 |
+| R3F | `@react-three/fiber` | ^8.16.0 |
+| drei | `@react-three/drei` | ^9.105.0 |
+| Анімації | `framer-motion` | ^11.0.0 |
 | Конфеті | `canvas-confetti` | ^1.9.3 |
-| Звуки (опц.) | `howler` | ^2.2.4 |
-| Типи для howler | `@types/howler` | ^2.2.11 |
-| Типи для confetti | `@types/canvas-confetti` | ^1.6.4 |
+| Звуки | `howler` | ^2.2.4 |
+| Типи | `@types/howler`, `@types/canvas-confetti` | latest compatible |
 
-**Хостинг:** Vercel (автодеплой з git push; безкоштовний домен `*.vercel.app`).
-
-**Чому саме це:**
-- Next.js + Vercel — один клік деплой, SSR не потрібен, але App Router дає гарну структуру.
-- R3F + drei — пишемо 3D декларативно як React-компоненти; у 5-10 разів менше коду ніж сирий Three.js.
-- Framer Motion — декларативні анімації коробок (`layout`, `AnimatePresence`, `whileHover`).
-- Tailwind — швидкий стайлінг без окремих CSS-файлів.
-
+Встановити точно ці версії — не `latest`. Хостинг: Vercel (автодеплой з git push).
+ 
 ---
 
-## 3. Структура проєкту
+## 3. Структура
 
 ```
 birthday-site/
 ├── app/
-│   ├── layout.tsx              # глобальний layout + шрифти
-│   ├── page.tsx                # головна: керує станом сцени (cake | gifts | final)
-│   └── globals.css             # tailwind + глобальні стилі
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── globals.css
 ├── components/
-│   ├── CakeScene.tsx           # обгортка <Canvas> + камера + світло
-│   ├── Cake.tsx                # 3D-модель торта (яруси)
-│   ├── Candle.tsx              # одна свічка + полум'я + хендлер кліку
-│   ├── Flame.tsx               # sprite-полум'я з анімацією
-│   ├── GiftsScene.tsx          # сітка коробок
-│   ├── GiftBox.tsx             # одна коробка (закрита/відкрита) + модалка вмісту
-│   ├── GiftContent.tsx         # рендер вмісту за type (memory/compliment/...)
-│   ├── FinalMessage.tsx        # фінальний екран
-│   └── SceneTransition.tsx     # fade-перехід між сценами
+│   ├── CakeScene.tsx
+│   ├── RotatingGroup.tsx
+│   ├── Cake.tsx
+│   ├── Candle.tsx
+│   ├── Flame.tsx
+│   ├── GiftsScene.tsx
+│   ├── GiftBox.tsx
+│   ├── GiftContent.tsx
+│   ├── FinalMessage.tsx
+│   └── SceneTransition.tsx
 ├── lib/
-│   ├── config.ts               # експортує заповнений об'єкт із розділу 0
-│   └── types.ts                # TypeScript-типи (Gift, GiftType, ...)
+│   ├── config.ts
+│   ├── scene-colors.ts
+│   └── types.ts
 ├── public/
-│   ├── images/                 # фото для подарунків
-│   └── audio/                  # mp3 для voice-подарунків
+│   ├── images/
+│   └── audio/
 ├── tailwind.config.ts
 ├── tsconfig.json
 ├── next.config.mjs
 └── package.json
 ```
-
+ 
 ---
 
-## 4. Порядок імплементації (суворо за цим порядком)
+## 4. Порядок імплементації
 
-1. **Ініціалізація:** `npx create-next-app@latest birthday-site --ts --tailwind --app --no-src-dir --import-alias "@/*"`
-2. Встановити всі залежності з розділу 2 одним `npm install` командою.
-3. Створити `lib/types.ts` і `lib/config.ts` з типізованими даними з розділу 0.
-4. Налаштувати `tailwind.config.ts` із кастомними кольорами й шрифтами (розділ 5).
-5. `app/layout.tsx` — підключити Google Fonts (через `next/font/google`), metadata.
-6. `app/page.tsx` — машина станів: `'cake' | 'transition' | 'gifts' | 'final'`.
-7. `components/CakeScene.tsx` + `Cake.tsx` + `Candle.tsx` + `Flame.tsx` (розділ 6).
-8. Тест: торт рендериться, свічки гасять, викликається `onAllExtinguished`.
-9. `components/SceneTransition.tsx` — fade через Framer Motion.
-10. `components/GiftsScene.tsx` + `GiftBox.tsx` + `GiftContent.tsx` (розділ 7).
-11. `components/FinalMessage.tsx` (розділ 8).
-12. Фінальний полір: звуки (опц.), оптимізація, responsive (розділ 9).
-13. Деплой на Vercel (розділ 10).
-
+1. `npx create-next-app@latest birthday-site --ts --tailwind --app --no-src-dir --import-alias "@/*"`
+2. Встановити залежності з розділу 2 одною командою `npm install`.
+3. `lib/types.ts` + `lib/config.ts` + `lib/scene-colors.ts` (розділ 5, 7).
+4. `tailwind.config.ts` — кастомні кольори, шрифти, safe-area spacing (розділ 6).
+5. `app/layout.tsx` — шрифти через `next/font/google`, viewport з `viewportFit: 'cover'`.
+6. `app/globals.css` — safe-area padding, `overscroll-behavior: none`, `no-select` клас.
+7. `app/page.tsx` — state machine: `'cake' | 'transition' | 'gifts' | 'final'`.
+8. Сцена 1 (розділ 7) — повністю до робочого стану.
+9. Checkpoint: усі 12 пунктів чеклісту розділу 7.9.
+10. `SceneTransition.tsx` — fade через Framer Motion.
+11. Сцена 2 (розділ 8).
+12. `FinalMessage.tsx` (розділ 9).
+13. Полір, deploy (розділи 10, 11).
 ---
 
-## 5. Дизайн-система
+## 5. Типи та конфіг
 
-**Tailwind config** — додати до `theme.extend`:
+```ts
+// lib/types.ts
+export type GiftType = 'memory' | 'compliment' | 'promise' | 'photo' | 'voice' | 'quote';
+ 
+export interface Gift {
+  type: GiftType;
+  title: string;
+  content?: string;
+  image?: string;
+  caption?: string;
+  audio?: string;
+}
+ 
+export interface Config {
+  recipient_name: string;
+  recipient_nickname: string;
+  age: number;
+  birthday_date: string;
+  aesthetic: string;
+  primary_color: string;
+  accent_color: string;
+  background_color: string;
+  text_color: string;
+  font_heading: string;
+  font_body: string;
+  candles_count: number;
+  cake_tiers: 2;
+  gifts: Gift[];
+  final_message: string;
+  deploy_subdomain: string;
+}
+```
+
+```ts
+// lib/config.ts — експорт типізованого об'єкта з розділу 0
+import type { Config } from './types';
+export const config: Config = { /* значення з розділу 0 */ };
+```
+ 
+---
+
+## 6. Дизайн-система
+
+**Tailwind `theme.extend`:**
 ```ts
 colors: {
-  primary: '<<primary_color>>',
-  accent: '<<accent_color>>',
-  bg: '<<background_color>>',
-  ink: '<<text_color>>',
+  primary: config.primary_color,
+  accent: config.accent_color,
+  bg: config.background_color,
+  ink: config.text_color,
 },
 fontFamily: {
-  heading: ['<<font_heading>>', 'serif'],
-  body: ['<<font_body>>', 'sans-serif'],
+  heading: [config.font_heading, 'serif'],
+  body: [config.font_body, 'sans-serif'],
+},
+spacing: {
+  'safe-top': 'env(safe-area-inset-top)',
+  'safe-bottom': 'env(safe-area-inset-bottom)',
 },
 ```
 
-**Глобальні правила:**
-- Заголовки — `font-heading`, розмір `text-4xl` і більше на sm+, `text-3xl` на мобільних.
-- Основний текст — `font-body`, `leading-relaxed`.
-- Заокруглення — `rounded-2xl` для карток, `rounded-full` для кнопок.
-- Тіні м'які: `shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)]`.
-- Transitions — за замовчуванням 300ms ease-out.
+**Viewport (layout.tsx):**
+```ts
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+  themeColor: config.background_color,
+};
+```
 
+**globals.css:**
+```css
+@layer base {
+  html, body {
+    height: 100%;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+}
+ 
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+**Типографіка:**
+| Елемент | Mobile | md+ |
+|---|---|---|
+| Hero heading | `text-3xl` | `md:text-5xl` |
+| Body | `text-base leading-relaxed` | `md:text-lg` |
+| Small labels | `text-xs` | `md:text-sm` |
+
+**Правила:** `rounded-2xl` для карток, `rounded-full` для кнопок. Тіні: `shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)]`. Transitions 300ms ease-out. Використовувати `h-[100dvh]`, НЕ `h-screen`.
+ 
 ---
 
-## 6. Сцена 1 — 3D-торт
+## 7. Сцена 1 — Торт зі свічками
 
-### 6.1. CakeScene.tsx
-- Повноекранний `<Canvas>` від R3F.
-- Камера: `position={[0, 3, 6]}`, `fov={45}`, дивиться на `[0, 1, 0]`.
-- OrbitControls з `enableZoom={false}`, `enablePan={false}`, `minPolarAngle={Math.PI/3}`, `maxPolarAngle={Math.PI/2.2}` (легке обертання, без перевертання).
-- Світло:
-  - `ambientLight` intensity 0.4.
-  - `directionalLight` position `[5, 8, 5]` intensity 1, castShadow.
-  - Опційно `pointLight` на кожній свічці з кольором `accent_color`, intensity 0.3, поки полум'я горить.
-- Фон `<Canvas>` — градієнт через CSS (transparent canvas над div з `bg-gradient-to-b from-primary/30 to-bg`).
+### 7.1. Палітра сцени (`lib/scene-colors.ts`)
 
-### 6.2. Cake.tsx
-- 2-3 ярусні циліндри (`<cylinderGeometry>`), кожен вужчий за попередній:
-  - нижній: radius 1.5, height 0.6
-  - середній: radius 1.1, height 0.5
-  - верхній (якщо 3 яруси): radius 0.7, height 0.4
-- Матеріал: `<meshStandardMaterial color={primary_color}>`, trохи `roughness={0.6}`.
-- Декор: тонкі тори (`<torusGeometry>`) по краях кожного ярусу в `accent_color` — імітація кремових візерунків.
-- Приймає пропси для позиції й генерує масив позицій свічок на верхньому ярусі (рівномірно по колу).
+Усі 3D-кольори імпортуються звідси. НЕ хардкодити hex у JSX.
 
-### 6.3. Candle.tsx
-- Проп: `position`, `isLit`, `onClick`.
-- Тіло свічки — тонкий циліндр (radius 0.04, height 0.25), колір білий або пастель.
-- Ґніт — темний маленький циліндр на верху.
-- Над ним — `<Flame>` якщо `isLit === true`.
-- Хітбокс кліку — **тільки полум'я** (див. 6.4), не тіло свічки.
-
-### 6.4. Flame.tsx
-- Реалізація через **`<Billboard>`** з drei + `<meshBasicMaterial>` на плейні з текстурою полум'я (SVG-gradient → PNG або згенерувати через drei `<Html>` з CSS).
-- **Простіший варіант без текстур:** дві накладені сфери з emissive-матеріалом:
-  - Зовнішня: `sphereGeometry` radius 0.08, колір `#FFA500`, emissive `#FF6B00`, emissiveIntensity 2, transparent, opacity 0.6.
-  - Внутрішня: `sphereGeometry` radius 0.04, колір `#FFFF00`, emissive `#FFEE00`, emissiveIntensity 3.
-- Анімація через `useFrame`: scale коливається `1 + sin(t*8)*0.15`, легке обертання.
-- `onClick={onExtinguish}` — обробник. Курсор `cursor-pointer` при hover (через `onPointerOver` → `document.body.style.cursor`).
-- При extinguish — анімація fade-out 400ms (scale до 0, opacity до 0), після чого компонент прибирається.
-
-### 6.5. page.tsx — керування свічками
 ```ts
-const [extinguished, setExtinguished] = useState<boolean[]>(
-  new Array(config.candles_count).fill(false)
-);
+export const SCENE = {
+  PRIMARY: '#FFB5C5',       // верхній ярус
+  PRIMARY_DEEP: '#E89AAE',  // нижній ярус
+  ACCENT: '#FFD700',        // золотий декор
+  WAX: '#FFF8F0',           // свічка білого кольору
+  WAX_ALT: '#FFDCE4',       // свічка рожевого (чергується з WAX)
+  WICK: '#2B1A10',          // ґніт
+  FLAME_OUTER: '#FFA24B',   // зовнішнє гало
+  FLAME_INNER: '#FFF2A8',   // яскраве ядро
+  POINT_LIGHT: '#FFB86B',   // тепле світло
+} as const;
+```
 
+### 7.2. CakeScene.tsx
+
+```tsx
+<Canvas
+  shadows={!isMobile}
+  dpr={[1, 2]}
+  gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+  camera={{
+    fov: isMobile ? 55 : 42,
+    position: isMobile ? [0, 2.5, 7] : [0, 2.2, 6.2],
+    near: 0.1,
+    far: 100
+  }}
+  style={{ height: '100dvh', width: '100%', touchAction: 'none' }}
+  onCreated={({ gl }) => { gl.outputColorSpace = THREE.SRGBColorSpace; }}
+>
+  {/* lights + shadow-catcher + RotatingGroup */}
+</Canvas>
+```
+
+`isMobile` — через media query хук `useMediaQuery('(max-width: 768px)')`.
+
+**Камера дивиться на `[0, 0.2, 0]`**. OrbitControls НЕ використовувати.
+
+### 7.3. Освітлення
+
+```tsx
+<ambientLight intensity={0.55} />
+<directionalLight
+  position={[5, 8, 4]} intensity={0.9} castShadow
+  shadow-mapSize-width={1024} shadow-mapSize-height={1024}
+  shadow-camera-near={1} shadow-camera-far={20}
+  shadow-camera-left={-4} shadow-camera-right={4}
+  shadow-camera-top={4} shadow-camera-bottom={-4}
+/>
+<directionalLight position={[-4, 3, -2]} intensity={0.25} color="#FFD6E0" />
+```
+
+### 7.4. Shadow catcher
+
+```tsx
+<mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.82, 0]} receiveShadow>
+  <planeGeometry args={[12, 12]} />
+  <shadowMaterial opacity={0.18} />
+</mesh>
+```
+
+### 7.5. RotatingGroup.tsx
+
+Обгортає торт і свічки. Реалізує:
+- Повільне автообертання `rotation.y += 0.0035` щокадру через `useFrame`.
+- Drag через `onPointerDown/Move/Up` з `setPointerCapture`.
+- Через 2500мс після `pointerUp` автообертання відновлюється.
+- Клік по полум'ю НЕ зчитується як drag (R3F робить це автоматично якщо рух <5px — не ламати вручну).
+```tsx
+function RotatingGroup({ children }: { children: React.ReactNode }) {
+  const groupRef = useRef<THREE.Group>(null);
+  const isDragging = useRef(false);
+  const lastX = useRef(0);
+  const idleRotate = useRef(true);
+  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+ 
+  useFrame(() => {
+    if (idleRotate.current && groupRef.current) {
+      groupRef.current.rotation.y += 0.0035;
+    }
+  });
+ 
+  const onPointerDown = (e: React.PointerEvent) => {
+    isDragging.current = true;
+    lastX.current = e.clientX;
+    idleRotate.current = false;
+    if (idleTimer.current) clearTimeout(idleTimer.current);
+    (e.target as Element).setPointerCapture(e.pointerId);
+  };
+ 
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!isDragging.current || !groupRef.current) return;
+    groupRef.current.rotation.y += (e.clientX - lastX.current) * 0.008;
+    lastX.current = e.clientX;
+  };
+ 
+  const onPointerUp = (e: React.PointerEvent) => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    idleTimer.current = setTimeout(() => { idleRotate.current = true; }, 2500);
+    (e.target as Element).releasePointerCapture(e.pointerId);
+  };
+ 
+  return (
+    <group ref={groupRef} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}>
+      {children}
+    </group>
+  );
+}
+```
+
+### 7.6. Cake.tsx — геометрія торта
+
+**Рівно 2 яруси.**
+
+```tsx
+// Нижній ярус
+<mesh position={[0, -0.4, 0]} castShadow receiveShadow>
+  <cylinderGeometry args={[1.5, 1.5, 0.8, 64]} />
+  <meshStandardMaterial color={SCENE.PRIMARY_DEEP} roughness={0.55} metalness={0.05} />
+</mesh>
+ 
+// Верхній ярус
+<mesh position={[0, 0.3, 0]} castShadow receiveShadow>
+  <cylinderGeometry args={[1.0, 1.0, 0.6, 64]} />
+  <meshStandardMaterial color={SCENE.PRIMARY} roughness={0.55} metalness={0.05} />
+</mesh>
+```
+
+Сегментація 64 — не зменшувати. Верхній — світліший, нижній — темніший (обов'язково).
+
+**Декор — 4 торусних обідка:**
+```tsx
+const RIMS = [
+  { r: 1.5, y:  0.0 },
+  { r: 1.5, y: -0.8 },
+  { r: 1.0, y:  0.6 },
+  { r: 1.0, y:  0.0 },
+];
+ 
+{RIMS.map((rim, i) => (
+  <mesh key={i} position={[0, rim.y, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+    <torusGeometry args={[rim.r, 0.035, 14, 64]} />
+    <meshStandardMaterial color={SCENE.ACCENT} roughness={0.28} metalness={0.85} />
+  </mesh>
+))}
+```
+
+**16 золотих крапок по основі:**
+```tsx
+{Array.from({ length: 16 }, (_, i) => {
+  const a = (i / 16) * Math.PI * 2;
+  return (
+    <mesh key={i} position={[Math.cos(a) * 1.5, -0.4, Math.sin(a) * 1.5]}>
+      <sphereGeometry args={[0.055, 12, 12]} />
+      <meshStandardMaterial color={SCENE.ACCENT} roughness={0.28} metalness={0.85} />
+    </mesh>
+  );
+})}
+```
+
+### 7.7. Candle.tsx
+
+Свічки розставлені по колу радіусом 0.6 на верхньому ярусі, **чергуються** `WAX` / `WAX_ALT`:
+
+```tsx
+{Array.from({ length: config.candles_count }, (_, i) => {
+  const a = (i / config.candles_count) * Math.PI * 2;
+  const x = Math.cos(a) * 0.6;
+  const z = Math.sin(a) * 0.6;
+  const waxColor = i % 2 === 0 ? SCENE.WAX : SCENE.WAX_ALT;
+  return (
+    <Candle
+      key={i}
+      index={i}
+      x={x} z={z}
+      waxColor={waxColor}
+      isLit={!extinguished[i]}
+      onExtinguish={() => handleExtinguish(i)}
+    />
+  );
+})}
+```
+
+**Всередині Candle:**
+```tsx
+// Тіло
+<mesh position={[x, 0.79, z]} castShadow>
+  <cylinderGeometry args={[0.055, 0.055, 0.38, 20]} />
+  <meshStandardMaterial color={waxColor} roughness={0.4} />
+</mesh>
+ 
+// Ґніт
+<mesh position={[x, 1.00, z]}>
+  <cylinderGeometry args={[0.008, 0.008, 0.05, 8]} />
+  <meshStandardMaterial color={SCENE.WICK} roughness={0.9} />
+</mesh>
+ 
+<Flame x={x} z={z} isLit={isLit} phase={index * 1.7} onExtinguish={onExtinguish} />
+```
+
+### 7.8. Flame.tsx — КРИТИЧНИЙ КОМПОНЕНТ
+
+`<group position={[x, 1.05, z]}>` з чотирьох частин:
+
+```tsx
+<group position={[x, 1.05, z]}>
+  {/* 1. Зовнішнє гало */}
+  <mesh ref={outerRef} scale={[1, 1.55, 1]}>
+    <sphereGeometry args={[0.09, 18, 18]} />
+    <meshBasicMaterial color={SCENE.FLAME_OUTER} transparent opacity={0.55} />
+  </mesh>
+ 
+  {/* 2. Внутрішнє ядро */}
+  <mesh ref={innerRef} scale={[1, 1.5, 1]} position={[0, -0.01, 0]}>
+    <sphereGeometry args={[0.045, 16, 16]} />
+    <meshBasicMaterial color={SCENE.FLAME_INNER} transparent opacity={1} />
+  </mesh>
+ 
+  {/* 3. Тепле світло */}
+  <pointLight
+    ref={lightRef}
+    color={SCENE.POINT_LIGHT}
+    intensity={0.35}
+    distance={1.6}
+    decay={2}
+    position={[0, 0.10, 0]}
+  />
+ 
+  {/* 4. Невидимий хітбокс — 0.22, не менше */}
+  <mesh
+    onClick={onExtinguish}
+    onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = 'pointer'; }}
+    onPointerOut={() => { document.body.style.cursor = 'default'; }}
+    visible={false}
+  >
+    <sphereGeometry args={[0.22, 12, 12]} />
+    <meshBasicMaterial transparent opacity={0} />
+  </mesh>
+</group>
+```
+
+**`meshBasicMaterial` обов'язково** — полум'я не має реагувати на світло.
+**`transparent={true}` на ядрі** — інакше opacity в useFrame не працюватиме.
+
+**Анімація — extinguish через useRef, не useState** (критично):
+
+```tsx
+const extinguishProgress = useRef(0); // 0 = горить, 1 = згасла
+ 
+useFrame((state, delta) => {
+  const t = state.clock.elapsedTime;
+ 
+  if (!isLit && extinguishProgress.current < 1) {
+    extinguishProgress.current = Math.min(1, extinguishProgress.current + delta * 2);
+  }
+ 
+  const fade = 1 - extinguishProgress.current;
+  if (fade <= 0) return;
+ 
+  const flicker = 1
+    + Math.sin(t * 7 + phase) * 0.10
+    + Math.sin(t * 13 + phase * 0.5) * 0.04;
+ 
+  if (outerRef.current) {
+    outerRef.current.scale.set(flicker * fade, 1.55 * flicker * fade, flicker * fade);
+    (outerRef.current.material as THREE.MeshBasicMaterial).opacity = 0.55 * fade;
+  }
+  if (innerRef.current) {
+    innerRef.current.scale.set(
+      flicker * 0.92 * fade,
+      1.5 * flicker * 0.92 * fade,
+      flicker * 0.92 * fade
+    );
+    (innerRef.current.material as THREE.MeshBasicMaterial).opacity = fade;
+  }
+  if (lightRef.current) {
+    lightRef.current.intensity = (0.32 + Math.sin(t * 11 + phase) * 0.10) * fade;
+  }
+});
+```
+
+Чому ref: state-анімація 60fps × 7 свічок = 420 re-render/с — це вбиває FPS. `delta * 2` дає ~500мс повного згасання незалежно від FPS пристрою.
+
+**Фаза `phase = index * 1.7`** — обов'язково, інакше свічки мерехтять синхронно, виглядає штучно.
+
+### 7.9. page.tsx — логіка Сцени 1
+
+```tsx
+const [extinguished, setExtinguished] = useState<boolean[]>(
+  () => new Array(config.candles_count).fill(false)
+);
+const [scene, setScene] = useState<'cake' | 'transition' | 'gifts' | 'final'>('cake');
+ 
 const handleExtinguish = (i: number) => {
   setExtinguished(prev => {
+    if (prev[i]) return prev;
     const next = [...prev];
     next[i] = true;
     return next;
   });
 };
-
+ 
 useEffect(() => {
-  if (extinguished.every(Boolean)) {
-    // запустити конфеті
-    import('canvas-confetti').then(({ default: confetti }) => {
-      confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
-      setTimeout(() => confetti({ particleCount: 100, spread: 120, origin: { y: 0.5 } }), 300);
-    });
-    // після 1.8с перейти до подарунків
-    setTimeout(() => setScene('transition'), 1800);
-    setTimeout(() => setScene('gifts'), 2600);
-  }
+  if (extinguished.length === 0 || !extinguished.every(Boolean)) return;
+ 
+  import('canvas-confetti').then(({ default: confetti }) => {
+    confetti({ particleCount: 120, spread: 90, origin: { y: 0.55 }, disableForReducedMotion: true });
+    setTimeout(() => confetti({ particleCount: 80, spread: 120, origin: { y: 0.45 }, disableForReducedMotion: true }), 280);
+  });
+ 
+  const t1 = setTimeout(() => setScene('transition'), 1800);
+  const t2 = setTimeout(() => setScene('gifts'), 2600);
+  return () => { clearTimeout(t1); clearTimeout(t2); };
 }, [extinguished]);
 ```
 
-### 6.6. UX-підказка
-Зверху екрана — полупрозорий текст типу `"Торкнися полум'я, щоб задути свічку 🕯️"`, який зникає після першого кліку (`opacity` через Framer Motion).
+### 7.10. UX-підказка
 
+Текст «Торкнися вогника, щоб задути свічку»:
+- Позиція: `absolute top-[calc(env(safe-area-inset-top)+16px)]`, центр горизонталі.
+- `text-sm md:text-base`, `text-ink/70`.
+- Клас `no-select`.
+- Opacity через Framer Motion: зникає після **першої успішно погашеної** свічки (не після першого тапу — тап міг промахнутися).
+### 7.11. Структура сцени 1
+
+```
+CakeScene.tsx
+├── <Canvas>
+├── <ambientLight> + 2× <directionalLight>
+├── shadow-catcher <mesh>
+└── <RotatingGroup>
+    ├── <Cake>
+    │   ├── bottom tier (PRIMARY_DEEP)
+    │   ├── top tier (PRIMARY)
+    │   ├── 4 × torus rims (ACCENT)
+    │   └── 16 × decorative dots (ACCENT)
+    └── <Candle> × N
+        ├── body (cylinder, waxColor чергується)
+        ├── wick (cylinder)
+        └── <Flame>
+            ├── outer sphere (halo)
+            ├── inner sphere (core)
+            ├── pointLight
+            └── invisible hitbox sphere (radius 0.22)
+```
+
+### 7.12. Чого НЕ робити в Сцені 1
+
+- Не додавати `<OrbitControls>` (є RotatingGroup).
+- Не використовувати `<Html>` від drei для полум'я.
+- Не використовувати `meshStandardMaterial` для полум'я — тільки `meshBasicMaterial`.
+- Не зменшувати хітбокс менше 0.22.
+- Не об'єднувати свічки в InstancedMesh.
+- Не використовувати `useState` для anim-прогресу згасання.
+- Не оптимізовувати жодні числові значення з цього розділу.
+### 7.13. Чекліст Сцени 1 (звітувати по кожному після імплементації)
+
+- [ ] Два яруси з різними відтінками рожевого, верхній світліший.
+- [ ] 4 золотих обідка видимі.
+- [ ] 16 золотих крапок навколо основи.
+- [ ] N свічок (згідно config), чергуються білий/рожевий.
+- [ ] Кожна свічка мерехтить у своєму ритмі.
+- [ ] Торт повільно обертається сам.
+- [ ] Drag обертає; через 2.5с автообертання відновлюється.
+- [ ] Тап по полум'ю плавно гасить свічку за ~500мс.
+- [ ] PointLight гасне разом з полум'ям.
+- [ ] FPS ≥55 на desktop, ≥50 на мобільному.
+- [ ] Після останньої — два сплески конфеті + перехід через 2.6с.
+- [ ] `npm run dev` без помилок у консолі браузера.
 ---
 
-## 7. Сцена 2 — Подарунки
+## 8. Сцена 2 — Подарунки
 
-### 7.1. GiftsScene.tsx
-- Заголовок: `"З днем народження, <<recipient_name>>!"` (`font-heading`, великий).
-- Підзаголовок: `"Відкрий кожен подарунок"`.
-- Сітка: `grid grid-cols-2 md:grid-cols-3 gap-6 p-6 max-w-4xl mx-auto`.
-- Map по `config.gifts` → рендерить `<GiftBox>`.
-- State: `openedIds: Set<number>`. Коли `openedIds.size === gifts.length` → перехід до `FinalMessage`.
+### 8.1. GiftsScene.tsx
 
-### 7.2. GiftBox.tsx
-- Дві частини: **кришка** (верхня) + **база** (нижня), з'єднані bow (стрічка-хрест).
-- Розміри: `aspect-square`, `rounded-xl`, background — градієнт `from-primary to-primary/70`.
-- Стрічка — горизонтальна й вертикальна смуги `accent_color`, бант по центру (SVG або `rounded-full` div).
-- Заголовок (`gift.title`) невеличким текстом знизу коробки.
-- Closed state: hover → `scale: 1.05`, `rotate: -2deg` (Framer Motion `whileHover`).
-- Click → `onOpen(id)`:
-  1. Кришка `animate={{ y: -120, rotate: -25, opacity: 0 }}` transition 600ms.
-  2. База `animate={{ scale: 0.9, opacity: 0.3 }}`.
-  3. Через 300ms відкривається модалка з `<GiftContent>` (AnimatePresence).
-- Після закриття модалки коробка лишається у «відкритому» стані (приглушеному), і додається до `openedIds`.
+Заголовок: `"З днем народження, {recipient_name}!"` — `font-heading text-3xl md:text-5xl`. Підзаголовок: «Відкрий кожен подарунок» — `text-sm md:text-base text-ink/70`.
 
-### 7.3. GiftContent.tsx
-Рендерить залежно від `gift.type`:
+Сітка:
+```tsx
+<div className="grid grid-cols-2 gap-4 p-4 max-w-lg mx-auto md:grid-cols-3 md:gap-6 md:p-6 md:max-w-4xl">
+  {config.gifts.map((gift, i) => <GiftBox key={i} gift={gift} index={i} ... />)}
+</div>
+```
+
+State: `openedIds: Set<number>`. Коли `openedIds.size === config.gifts.length` → `setScene('final')`.
+
+### 8.2. GiftBox.tsx
+
+`aspect-square rounded-xl`, градієнт `bg-gradient-to-br from-primary to-primary/70`. Стрічка — горизонтальна + вертикальна смуги `bg-accent`, бант по центру (SVG або rounded div).
+
+**Touch-патерн:**
+- `whileTap={{ scale: 0.95 }}` (НЕ `whileHover` — hover не існує на touch).
+- Closed: стоїть на місці.
+- Open animation:
+    - Кришка: `animate={{ y: -120, rotate: -25, opacity: 0 }}`, 600ms.
+    - База: `animate={{ scale: 0.9, opacity: 0.3 }}`.
+    - Через 300ms відкривається модалка.
+- Після закриття модалки коробка залишається в open-стані, `openedIds` оновлюється.
+### 8.3. GiftContent.tsx — bottom sheet модалка
+
+На мобільному — bottom sheet, на desktop — центрована картка:
+
+```tsx
+<motion.div
+  className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm md:items-center"
+>
+  <motion.div
+    className="
+      w-full max-h-[85vh] overflow-y-auto
+      bg-bg rounded-t-3xl p-6 pb-safe-bottom
+      md:max-w-lg md:rounded-3xl md:max-h-[80vh] md:m-4
+    "
+    initial={{ y: '100%', opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    exit={{ y: '100%', opacity: 0 }}
+    transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+  >
+    <button
+      className="absolute top-4 right-4 w-12 h-12 rounded-full bg-ink/10 flex items-center justify-center"
+      onClick={onClose}
+      aria-label="Закрити"
+    >×</button>
+    {/* Рендер за gift.type — див. 8.4 */}
+  </motion.div>
+</motion.div>
+```
+
+### 8.4. Рендер вмісту за типом
 
 | type | UI |
 |---|---|
-| `memory` | `title` + прозова розповідь + опц. фото (max-h-96 object-cover, rounded-xl) |
-| `compliment` | центрований текст великим шрифтом, можна з декоративними лапками |
-| `promise` | текст + іконка (наприклад SVG-серце або самоліт); акцент на `accent_color` |
-| `photo` | фото на всю ширину модалки + caption знизу курсивом |
-| `voice` | кастомний аудіоплеєр: кнопка play/pause (icon), прогрес-бар, час. Howler.js або HTML `<audio>` |
-| `quote` | текст вірша/цитати з `font-heading`, italic, центр |
+| `memory` | `title` + `content` (прозою) + опц. фото `max-h-[50vh] w-full object-cover rounded-2xl` |
+| `compliment` | центрований текст `text-xl md:text-2xl font-heading italic` |
+| `promise` | іконка (SVG) + `content`, акцент `accent_color` |
+| `photo` | фото + `caption` курсивом знизу |
+| `voice` | кастомний плеєр: play/pause кнопка 56×56px, прогрес-бар, час (Howler.js або нативний `<audio preload="metadata">`) |
+| `quote` | `content` через `font-heading italic text-center` |
 
-Модалка: overlay `bg-black/60 backdrop-blur-sm`, card `bg-bg rounded-3xl p-8 max-w-lg`, close кнопка в куті (×).
+### 8.5. Чекліст Сцени 2
 
-**Анімація модалки:**
-```ts
-initial={{ opacity: 0, scale: 0.8, y: 20 }}
-animate={{ opacity: 1, scale: 1, y: 0 }}
-exit={{ opacity: 0, scale: 0.9 }}
-transition={{ duration: 0.4, ease: 'easeOut' }}
-```
-
+- [ ] Сітка 2×N на мобільному, 3×N з md+.
+- [ ] `whileTap` scale feedback, без hover-залежностей.
+- [ ] Модалка відкривається bottom-sheet на мобільному, центрованою на desktop.
+- [ ] Кнопка закриття ≥48×48px.
+- [ ] Після відкриття всіх коробок — перехід до Final.
+- [ ] На iPhone SE (375px) все читабельне.
 ---
 
-## 8. Фінал
+## 9. FinalMessage.tsx
 
-Коли `openedIds.size === gifts.length` — через 500ms (щоб модалка встигла закритись):
-- Усі коробки плавно зникають (stagger fade).
-- З'являється `<FinalMessage>`: великий текст `config.final_message`, внизу — маленькі серденька/конфеті періодично.
-- Фонове конфеті: запустити `confetti` раз на 4-5 секунд м'якими сплесками.
-
+Коли `openedIds.size === gifts.length` — через 500мс (щоб модалка закрилась):
+- Усі коробки fade-out зі stagger.
+- З'являється `config.final_message` — `font-heading text-2xl md:text-4xl` центрований.
+- Періодичні м'які сплески конфеті раз на 4-5 секунд (`particleCount: 60`).
 ---
 
-## 9. Фінальний полір
+## 10. Мобільна адаптація — наскрізні правила
 
-- **Responsive:** перевірити на 375px (iPhone SE) — торт не має виходити за край; сітка коробок 2 колонки на мобільному.
-- **Touch:** `onClick` у R3F працює на touch за замовчуванням; переконатись що хітбокси полум'я не менші за 44×44px на мобільному (збільшити `scale` невидимого клік-плейну навколо полум'я).
-- **Preload зображень:** використати `next/image` з `priority` для першого фото.
-- **Lighthouse:** цільові метрики Performance >85, Accessibility >95.
-- **Звуки (опційно):** Howler.js — «пуф» при задуванні (`/audio/blow.mp3`), «шурхіт» при відкритті коробки (`/audio/open.mp3`), тиха фонова мелодія (loop, volume 0.2, з кнопкою mute у куті).
-- **Meta tags у `layout.tsx`:** `title`, `description`, og-image (можна зробити скріншот торта й покласти в `/public/og.png`).
-
+- **dpr 1-2, не 3.** Canvas `dpr={[1, 2]}`.
+- **touch-action: none** на Canvas — блокує pull-to-refresh і зум.
+- **`h-[100dvh]`, не `h-screen`.**
+- **Автозапуск аудіо заборонений в iOS Safari** — усі звуки тільки після першої user interaction (перший тап по свічці = unlock для звуків). Howler автоматично додає unlock listener.
+- **Rubber-band scroll:** `overflow: hidden` на `html, body`.
+- **Respect `prefers-reduced-motion`:** вже в `globals.css` + `disableForReducedMotion: true` у confetti.
+- **Shadow maps `shadows={false}` на мобільному** — економія GPU.
+- **Preload:** перші два фото через `next/image priority`, решта — дефолт (lazy).
+- **Aудіо:** `preload="metadata"`, не повне завантаження.
 ---
 
-## 10. Деплой
+## 11. Деплой
 
 1. `git init && git add . && git commit -m "init"`.
-2. Створити порожній репо на GitHub → `git push`.
-3. На vercel.com → Import Project → вибрати репо → Deploy (без змін налаштувань).
-4. У Settings → Domains → перейменувати піддомен на `<<deploy_subdomain>>.vercel.app`.
-5. Будь-який наступний `git push` → автодеплой.
-
+2. Створити репо на GitHub, `git push`.
+3. vercel.com → Import Project → вибрати репо → Deploy.
+4. Settings → Domains → піддомен `{deploy_subdomain}.vercel.app`.
+5. Наступні `git push` → автодеплой.
 ---
 
-## 11. Обмеження та non-goals
+## 12. Non-goals
 
-- **Не** робити бекенд, БД, авторизацію, CMS.
-- **Не** додавати аналітику, трекери, куки.
-- **Не** використовувати важкі 3D-моделі у форматі GLTF — тільки примітиви Three.js.
-- **Не** підключати сторонні UI-бібліотеки (shadcn, MUI, Chakra) — тільки Tailwind.
-- **Не** писати тести — це одноразовий проєкт.
-
+- Бекенд, БД, автентифікація.
+- Аналітика, трекери, куки.
+- GLTF-моделі — тільки примітиви Three.js.
+- Сторонні UI-бібліотеки (shadcn, MUI) — тільки Tailwind.
+- Тести.
+- `<OrbitControls>`, `<Html>` від drei, InstancedMesh для свічок.
 ---
 
-## 12. Критерії завершеності
+## 13. Фінальний чекліст (перед показом дівчині)
 
-- [ ] `npm run dev` запускається без помилок і варнінгів.
-- [ ] На `localhost:3000` видно 3D-торт з правильною кількістю свічок.
-- [ ] Клік по кожному полум'ю гасить його з анімацією.
-- [ ] Після останньої свічки летить конфеті й через ~2с з'являється екран з подарунками.
-- [ ] Кожна коробка відкривається кліком, показує свій вміст, закривається.
-- [ ] Після відкриття всіх — з'являється фінальне повідомлення.
-- [ ] На iPhone-розмірі все працює й нічого не обрізається.
-- [ ] Проєкт задеплоєний на Vercel і доступний за публічним URL.
+- [ ] Чекліст 7.13 — усі OK.
+- [ ] Чекліст 8.5 — усі OK.
+- [ ] Фінальне повідомлення з'являється після відкриття всіх коробок.
+- [ ] Протестовано на реальному iPhone 14 Pro Max (або симуляторі в Safari DevTools).
+- [ ] Lighthouse Performance ≥85, Accessibility ≥95.
+- [ ] Деплой на Vercel, URL відкривається з будь-якого пристрою.
+- [ ] Meta tags (`title`, `description`, og-image) виставлені.Якщо якийсь пункт "не виконано" — виправ і повтори звіт.

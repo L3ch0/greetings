@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
 
 export default function RotatingGroup({ children }: { children: React.ReactNode }) {
@@ -17,25 +17,25 @@ export default function RotatingGroup({ children }: { children: React.ReactNode 
     }
   });
 
-  const onPointerDown = (e: React.PointerEvent) => {
+  const onPointerDown = (e: ThreeEvent<PointerEvent>) => {
     isDragging.current = true;
-    lastX.current = e.clientX;
+    lastX.current = e.nativeEvent.clientX;
     idleRotate.current = false;
     if (idleTimer.current) clearTimeout(idleTimer.current);
-    (e.target as Element).setPointerCapture(e.pointerId);
+    (e.nativeEvent.target as Element).setPointerCapture(e.nativeEvent.pointerId);
   };
 
-  const onPointerMove = (e: React.PointerEvent) => {
+  const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
     if (!isDragging.current || !groupRef.current) return;
-    groupRef.current.rotation.y += (e.clientX - lastX.current) * 0.008;
-    lastX.current = e.clientX;
+    groupRef.current.rotation.y += (e.nativeEvent.clientX - lastX.current) * 0.008;
+    lastX.current = e.nativeEvent.clientX;
   };
 
-  const onPointerUp = (e: React.PointerEvent) => {
+  const onPointerUp = (e: ThreeEvent<PointerEvent>) => {
     if (!isDragging.current) return;
     isDragging.current = false;
     idleTimer.current = setTimeout(() => { idleRotate.current = true; }, 2500);
-    (e.target as Element).releasePointerCapture(e.pointerId);
+    (e.nativeEvent.target as Element).releasePointerCapture(e.nativeEvent.pointerId);
   };
 
   return (
