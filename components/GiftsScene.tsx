@@ -3,13 +3,15 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { config } from '@/lib/config';
+import { Gift } from '@/lib/types';
 import GiftBox from './GiftBox';
 
 interface GiftsSceneProps {
+  gifts: Gift[];
   onAllOpened: () => void;
 }
 
-export default function GiftsScene({ onAllOpened }: GiftsSceneProps) {
+export default function GiftsScene({ gifts, onAllOpened }: GiftsSceneProps) {
   const [openedIds, setOpenedIds] = useState<Set<number>>(new Set());
 
   const handleOpen = (index: number) => {
@@ -17,7 +19,7 @@ export default function GiftsScene({ onAllOpened }: GiftsSceneProps) {
   };
 
   useEffect(() => {
-    if (openedIds.size === config.gifts.length) {
+    if (openedIds.size === gifts.length) {
       onAllOpened();
     }
   }, [openedIds, onAllOpened]);
@@ -58,7 +60,7 @@ export default function GiftsScene({ onAllOpened }: GiftsSceneProps) {
             },
           }}
         >
-          {config.gifts.map((gift, index) => (
+          {gifts.map((gift, index) => (
             <motion.div
               key={index}
               variants={{

@@ -5,6 +5,8 @@ export interface Gift {
   title: string;
   content?: string;
   image?: string;
+  images?: string[];
+  photoFolder?: string;
   caption?: string;
   audio?: string;
 }

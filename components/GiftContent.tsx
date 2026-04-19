@@ -113,16 +113,7 @@ export default function GiftContent({ gift, onClose }: GiftContentProps) {
           )}
 
           {gift.type === 'photo' && (
-            <div className="space-y-4">
-              <img
-                src={gift.image}
-                alt={gift.title}
-                className="max-h-[50vh] w-full object-cover rounded-2xl"
-              />
-              <p className="font-body text-sm md:text-base italic text-center text-ink/80">
-                {gift.caption}
-              </p>
-            </div>
+            <PhotoGallery image={gift.image} images={gift.images} caption={gift.caption} />
           )}
 
           {gift.type === 'voice' && (
@@ -142,57 +133,138 @@ export default function GiftContent({ gift, onClose }: GiftContentProps) {
   );
 }
 
+function PhotoGallery({ image, images, caption }: { image?: string; images?: string[]; caption?: string }) {
+  const all = images && images.length > 0 ? images : image ? [image] : [];
+  const [index, setIndex] = useState(0);
+
+  if (all.length === 0) return null;
+
+  const prev = () => setIndex(i => (i - 1 + all.length) % all.length);
+  const next = () => setIndex(i => (i + 1) % all.length);
+
+  return (
+    <div className="space-y-3">
+      {/* Main photo */}
+      <div className="relative rounded-2xl overflow-hidden bg-ink/5" style={{ aspectRatio: '4/3' }}>
+        <img
+          key={index}
+          src={all[index]}
+          alt={`фото ${index + 1}`}
+          className="w-full h-full object-cover"
+        />
+        {all.length > 1 && (
+          <>
+            <button
+              onClick={prev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white text-xl leading-none transition-colors"
+              aria-label="Попереднє"
+            >‹</button>
+            <button
+              onClick={next}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white text-xl leading-none transition-colors"
+              aria-label="Наступне"
+            >›</button>
+            <div className="absolute bottom-2 right-3 bg-black/50 text-white text-xs rounded-full px-2 py-0.5 font-body">
+              {index + 1} / {all.length}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Thumbnails */}
+      {all.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {all.map((src, i) => (
+            <button
+              key={i}
+              onClick={() => setIndex(i)}
+              className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all ${
+                i === index ? 'border-accent scale-105' : 'border-transparent opacity-60 hover:opacity-100'
+              }`}
+            >
+              <img src={src} alt="" className="w-full h-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {caption && (
+        <p className="font-body text-sm md:text-base italic text-center text-ink/80">{caption}</p>
+      )}
+    </div>
+  );
+}
+
 function VoicePlayer({ audioSrc }: { audioSrc: string }) {
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const handleLoadedMetadata = () => setDuration(audio.duration);
-    const handleEnded = () => setIsPlaying(false);
+    const onTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const onMetadata = () => setDuration(audio.duration);
+    const onEnded = () => setIsPlaying(false);
+    const onError = () => {
+      const code = audio.error?.code;
+      const msg = audio.error?.message;
+      setError(`код ${code}: ${msg}`);
+    };
 
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('timeupdate', onTimeUpdate);
+    audio.addEventListener('loadedmetadata', onMetadata);
+    audio.addEventListener('ended', onEnded);
+    audio.addEventListener('error', onError);
 
     return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('ended', handleEnded);
+      audio.pause();
+      audio.removeEventListener('timeupdate', onTimeUpdate);
+      audio.removeEventListener('loadedmetadata', onMetadata);
+      audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('error', onError);
     };
   }, []);
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     const audio = audioRef.current;
     if (!audio) return;
-
     if (isPlaying) {
       audio.pause();
+      setIsPlaying(false);
     } else {
-      audio.play();
+      try {
+        await audio.play();
+        setIsPlaying(true);
+      } catch {
+        setError('playback failed');
+      }
     }
-    setIsPlaying(!isPlaying);
   };
 
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  const formatTime = (t: number) => {
+    if (!isFinite(t)) return '0:00';
+    const m = Math.floor(t / 60);
+    const s = Math.floor(t % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
   };
+
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  if (error) return (
+    <p className="font-body text-sm text-ink/50 text-center py-4">Не вдалось завантажити аудіо</p>
+  );
 
   return (
     <div className="space-y-4">
       <audio ref={audioRef} src={audioSrc} preload="metadata" />
-
       <div className="flex items-center gap-4">
         <button
           onClick={togglePlay}
-          className="w-14 h-14 flex items-center justify-center rounded-full bg-accent hover:bg-accent/90 transition-colors"
+          className="w-14 h-14 flex-shrink-0 flex items-center justify-center rounded-full bg-accent hover:bg-accent/90 transition-colors"
           aria-label={isPlaying ? 'Пауза' : 'Відтворити'}
         >
           {isPlaying ? (
@@ -213,15 +285,15 @@ function VoicePlayer({ audioSrc }: { audioSrc: string }) {
             min="0"
             max={duration || 0}
             value={currentTime}
+            step="0.1"
             onChange={(e) => {
               const audio = audioRef.current;
-              if (audio) {
-                audio.currentTime = Number(e.target.value);
-              }
+              if (audio) audio.currentTime = Number(e.target.value);
+              setCurrentTime(Number(e.target.value));
             }}
-            className="w-full h-2 bg-ink/20 rounded-full appearance-none cursor-pointer"
+            className="w-full h-2 rounded-full appearance-none cursor-pointer"
             style={{
-              background: `linear-gradient(to right, var(--accent) 0%, var(--accent) ${(currentTime / duration) * 100}%, rgb(45 27 46 / 0.2) ${(currentTime / duration) * 100}%, rgb(45 27 46 / 0.2) 100%)`,
+              background: `linear-gradient(to right, var(--accent) ${progress}%, rgb(45 27 46 / 0.2) ${progress}%)`,
             }}
           />
           <div className="flex justify-between text-xs text-ink/60 mt-1">
